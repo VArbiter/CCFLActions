@@ -76,6 +76,11 @@ module Fastlane
       def self.is_supported?(platform)
         platform == :ios
       end
+
+      def self.category
+        :source_control
+      end
+
     end
   end
 end

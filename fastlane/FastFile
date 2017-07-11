@@ -1,0 +1,6 @@
+desc "测试 获取 repo"
+
+lane :repo_fetch do |s|
+	c = cc_fetch_repo
+	UI.message "#{c}"
+end

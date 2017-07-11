@@ -2,6 +2,7 @@
 # 1. 有一个源代码仓库且和远程仓库关联
 # 2. 有 podspec 描述文件(描述文件一定要先验证正确性)
 # 3. 安装 brewHome , ruby , fastlane (自己Google)
+# 4. 只保留文件名(FastFile)
 
 # 需要注意的是 , 这个没有容错 , 
 # 错了没有回滚 , 到哪一步错了 , 就哪一步错了 , 之前的都是执行成功且完毕的
@@ -11,7 +12,7 @@
 
 desc "Update pods." #描述功能
 
-lane : c do |s|
+lane :c do |s|
 	# 检索地址 https://docs.fastlane.tools/actions/
 	# 所有官方库 actions 地址: 
 	# => https://github.com/fastlane/fastlane/tree/master/fastlane/lib/fastlane/actions
@@ -70,7 +71,7 @@ lane : c do |s|
 	# pod repo push CCSpecs CCSpecs.podspec
 	pod_push(
 		path: "#{t}.podspec", 
-		repo: r,
+		repo: cc_fetch_repo,
 		allow_warnings: true
 	)
 
