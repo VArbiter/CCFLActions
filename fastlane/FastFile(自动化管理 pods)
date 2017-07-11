@@ -1,0 +1,77 @@
+# 在执行这个自动化脚本之前 , 你必须
+# 1. 有一个源代码仓库且和远程仓库关联
+# 2. 有 podspec 描述文件(描述文件一定要先验证正确性)
+# 3. 安装 brewHome , ruby , fastlane (自己Google)
+
+# 需要注意的是 , 这个没有容错 , 
+# 错了没有回滚 , 到哪一步错了 , 就哪一步错了 , 之前的都是执行成功且完毕的
+# exec:
+# => cd fastlane 文件夹所在的文件夹
+# => fastlane c t:target g:tag m:message r:repo
+
+desc "Update pods." #描述功能
+
+lane : c do |s|
+	# 检索地址 https://docs.fastlane.tools/actions/
+	# 所有官方库 actions 地址: 
+	# => https://github.com/fastlane/fastlane/tree/master/fastlane/lib/fastlane/actions
+	# fastlane action -> 在终端会告诉你这个 action 的用法 , 还有每个参数的含义
+
+	t = s[:t] # target
+	g = s[:g] # tag
+	m = s[:m] # message
+	r = s[:r] # pod repo , 提交到哪个索引库 , 有针对性的可以写死 , 本地库就不需要了
+ 
+	# pod install
+	cocoapods( 
+  		clean: true,
+  		# 填写你自己的 podFile 路径 , 需要注意的是 , 这里的路径和 podspec 不同 ,
+  		# 全部是根路径 , 就是 fastlane folder 所在的路径
+  		podfile: "./CCAudioPlayer-Demo/Podfile" 
+	)
+
+	# 指明版本号 (podspec) 
+	version = version_bump_podspec(
+		path: "#{t}.podspec", 
+		version_number: g
+	)
+
+	# git add .
+	git_add(
+		# 替换为你自己的路径 , 下同
+		path: "./CCAudioPlayer/**/*"
+		)
+
+	#  git commit -m ''
+	git_commit(
+		path: "./CCAudioPlayer/**/*", 
+		message: m
+		)
+
+	# git push origin master
+	push_to_git_remote
+
+	# 判断 tag 是否存在 , 存在则删除 , 添加最新的
+	if git_tag_exists(tag: g)
+  		UI.message("tag already exists / tag 已经存在. 😶")
+  		cc_remove_exist_tag(
+  			tag:g
+  		)
+	end
+
+	# git tag 
+	add_git_tag(
+  		tag: g
+	)
+
+	# git push --tags
+	push_git_tags
+
+	# pod repo push CCSpecs CCSpecs.podspec
+	pod_push(
+		path: "#{t}.podspec", 
+		repo: r,
+		allow_warnings: true
+	)
+
+end
