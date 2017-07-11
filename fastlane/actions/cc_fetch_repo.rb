@@ -11,14 +11,15 @@ module Fastlane
         # 如果存在多个 repo , 将返回第一个
 
         if params[:repo]
+          
           r = params[:repo]
           UI.message "#{r}"
         else
 
-        cmd = "pod repo"
-        r = Actions.sh(cmd)
-        a = r.split(" ")
-        l = a.length - 1  
+          cmd = "pod repo"
+          r = Actions.sh(cmd)
+          a = r.split(" ")
+          l = a.length - 1  
           for i in 0..l do  
             s = a[i]
             if (s.include? "http://") || (s.include? "https://")
